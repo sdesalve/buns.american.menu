@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menù</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      position: relative;
+    }
+
+    iframe {
+      width: 1080px;
+      height: 1960px;
+      border: none;
+      display: block;
+      margin: 0 auto;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 1;
+      visibility: visible;
+    }
+
+    #iframeB {
+      visibility: hidden;
+      opacity: 0;
+      z-index: 2;
+    }
+
+    #countdown {
+      position: fixed;
+      bottom: 20px;
+      right: 30px;
+      color: white;
+      font-size: 1rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 20px;
+      border-radius: 10px;
+      z-index: 10;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- iframe visibile inizialmente -->
+  <iframe
+    id="iframeA"
+    src="about:blank"
+    allowfullscreen
+    mozallowfullscreen
+    webkitallowfullscreen>
+  </iframe>
+
+  <!-- iframe nascosto per precaricare -->
+  <iframe
+    id="iframeB"
+    src=""
+    allowfullscreen
+    mozallowfullscreen
+    webkitallowfullscreen>
+  </iframe>
+
+  <div id="countdown">99</div>
+
+  <script>
+    const countdownEl = document.getElementById("countdown");
+    const iframeA = document.getElementById("iframeA");
+    const iframeB = document.getElementById("iframeB");
+
+    let seconds = 99;
+    let showingA = true;
+    const src = "https://docs.google.com/presentation/d/e/2PACX-1vQsks_DY8YjtVAmgMBhFnd9KlD4ToYwqV6Z4ccttdek9kExk-RpymnDCa2H4hoBGLULCiUqM9Vn87o1/pubembed?start=true&loop=true&delayms=3000";
+
+    iframeA.src = src;
+    
+    function updateCountdown() {
+      countdownEl.textContent = seconds;
+      if (seconds === 0) {
+        preloadAndSwap();
+        seconds = 99;
+      } else {
+        seconds--;
+      }
+    }
+
+    function preloadAndSwap() {
+      const target = showingA ? iframeB : iframeA;
+      const current = showingA ? iframeA : iframeB;
+
+      target.style.visibility = "hidden";  // inizialmente nascosto
+      target.style.opacity = 0;
+      target.style.zIndex = 2;
+
+      target.src = src;
+
+      target.onload = () => {
+        // attende 500ms dopo onload
+        setTimeout(() => {
+          target.style.visibility = "visible";
+          requestAnimationFrame(() => {
+            target.style.transition = "opacity 0.5s ease-in-out";
+            target.style.opacity = 1;
+          });
+
+          // dopo il fade, nascondi il vecchio
+          setTimeout(() => {
+            current.style.visibility = "hidden";
+            current.style.opacity = 0;
+            current.style.zIndex = 1;
+            showingA = !showingA;
+          }, 500); // attende fine transizione
+        }, 500); // attesa post-onload
+      };
+    }
+
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
